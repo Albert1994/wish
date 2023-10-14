@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"wish/internal/service"
 )
 
@@ -18,6 +19,10 @@ func NewHandler(services *service.Services) *Handler {
 func (h *Handler) Init(api *gin.RouterGroup) {
 	v1 := api.Group("/v1")
 	{
-		v1.GET("singIn")
+		v1.GET("singIn", h.singIn)
 	}
+}
+
+func (h *Handler) singIn(c *gin.Context) {
+	c.JSON(http.StatusOK, "asd")
 }

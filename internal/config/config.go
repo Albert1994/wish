@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"github.com/subosito/gotenv"
 	"os"
 	"time"
 )
@@ -62,6 +63,10 @@ type (
 func Init(configsDir string) (*Config, error) {
 	populateDefaults()
 
+	if err := gotenv.OverLoad(); err != nil {
+		return nil, err
+	}
+
 	if err := parseConfigFile(configsDir, os.Getenv("APP_ENV")); err != nil {
 		return nil, err
 	}
@@ -79,8 +84,8 @@ func setFromEnv(cfg *Config) {
 	cfg.Postgres.Port = os.Getenv("POSTGRES_PORT")
 	cfg.Postgres.User = os.Getenv("POSTGRES_USER")
 	cfg.Postgres.Password = os.Getenv("POSTGRES_PASSWORD")
-	cfg.Postgres.Name = os.Getenv("POSTGRES_DBName")
-	cfg.Postgres.SSLMode = os.Getenv("POSTGRES_SSLMode")
+	cfg.Postgres.Name = os.Getenv("POSTGRES_Name")
+	cfg.Postgres.SSLMode = os.Getenv("POSTGRES_SSLMODE")
 }
 
 func parseConfigFile(folder, env string) error {
@@ -102,13 +107,10 @@ func parseConfigFile(folder, env string) error {
 
 func populateDefaults() {
 	viper.SetDefault("http.port", defaultHTTPPort)
-	viper.SetDefault("http.max_header_megabytes", defaultHTTPMaxHeaderMegabytes)
+	/*viper.SetDefault("http.max_header_megabytes", defaultHTTPMaxHeaderMegabytes)
 	viper.SetDefault("http.timeouts.read", defaultHTTPRWTimeout)
 	viper.SetDefault("http.timeouts.write", defaultHTTPRWTimeout)
 	viper.SetDefault("auth.accessTokenTTL", defaultAccessTokenTTL)
 	viper.SetDefault("auth.refreshTokenTTL", defaultRefreshTokenTTL)
-	viper.SetDefault("auth.verificationCodeLength", defaultVerificationCodeLength)
-	viper.SetDefault("limiter.rps", defaultLimiterRPS)
-	viper.SetDefault("limiter.burst", defaultLimiterBurst)
-	viper.SetDefault("limiter.ttl", defaultLimiterTTL)
+	viper.SetDefault("auth.verificationCodeLength", defaultVerificationCodeLength)*/
 }

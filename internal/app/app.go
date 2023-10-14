@@ -1,10 +1,14 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 	"wish/internal/config"
 	"wish/internal/handler"
 	"wish/internal/repository"
@@ -53,19 +57,29 @@ func Run(configDir string) {
 	services := service.NewServices(service.Deps{
 		Repos: repos,
 	})
-	fmt.Println("Server started1")
 	handlers := handler.NewHandler(services)
 
 	srv := server.NewServer(cfg, handlers.Init(cfg))
 
-	fmt.Println("Server started")
 	go func() {
 		if err := srv.Run(); !errors.Is(err, http.ErrServerClosed) {
 			logger.Errorf("error occurred while running http server: %s\n", err.Error())
 		}
 	}()
 
-	fmt.Println("Server started")
 	logger.Info("Server started")
 
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+
+	<-quit
+
+	const timeout = 5 * time.Second
+
+	ctx, shutdown := context.WithTimeout(context.Background(), timeout)
+	defer shutdown()
+
+	if err := srv.Stop(ctx); err != nil {
+		logger.Errorf("failed to stop server: %v", err)
+	}
 }
