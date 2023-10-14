@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import "wish/internal/app"
+
+const configsDir = "configs"
 
 func main() {
-	fmt.Println("Hello world")
+	app.Run(configsDir)
 }
