@@ -1,8 +1,13 @@
 package repository
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/jmoiron/sqlx"
+	"wish/internal/model"
+)
 
 type Users interface {
+	CreateUser(user model.User) error
+	GetUser(email string) (model.User, error)
 }
 
 type Repositories struct {
@@ -10,5 +15,7 @@ type Repositories struct {
 }
 
 func NewRepository(db *sqlx.DB) *Repositories {
-	return &Repositories{}
+	return &Repositories{
+		Users: NewUserPostgres(db),
+	}
 }

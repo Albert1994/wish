@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,6 +13,8 @@ import (
 	"wish/internal/repository"
 	"wish/internal/server"
 	"wish/internal/service"
+	"wish/pkg/auth"
+	"wish/pkg/hash"
 	"wish/pkg/logger"
 )
 
@@ -41,9 +42,6 @@ func Run(configDir string) {
 		return
 	}
 
-	a := os.Getenv("APP_ENV")
-	fmt.Println(a)
-
 	db, err := repository.NewPostgresDB(cfg)
 
 	if err != nil {
@@ -52,10 +50,21 @@ func Run(configDir string) {
 		return
 	}
 
+	tokenManager, err := auth.NewManager(cfg.Auth.JWT.SigningKey)
+	if err != nil {
+		logger.Error(err)
+
+		return
+	}
+
+	hasher := hash.NewSHA1Hasher(cfg.Auth.PasswordSalt)
+
 	repos := repository.NewRepository(db)
 
 	services := service.NewServices(service.Deps{
-		Repos: repos,
+		Repos:        repos,
+		TokenManager: tokenManager,
+		Hasher:       hasher,
 	})
 	handlers := handler.NewHandler(services)
 

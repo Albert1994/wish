@@ -7,6 +7,10 @@ import (
 	"wish/internal/config"
 )
 
+const (
+	usersTable = "users"
+)
+
 func NewPostgresDB(cfg *config.Config) (*sqlx.DB, error) {
 	db, err := sqlx.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		cfg.Postgres.Host, cfg.Postgres.Port, cfg.Postgres.User, cfg.Postgres.Name, cfg.Postgres.Password, cfg.Postgres.SSLMode))

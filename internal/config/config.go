@@ -72,9 +72,25 @@ func Init(configsDir string) (*Config, error) {
 	}
 
 	var cfg Config
+	if err := unmarshal(&cfg); err != nil {
+		return nil, err
+	}
+
 	setFromEnv(&cfg)
 
 	return &cfg, nil
+}
+
+func unmarshal(cfg *Config) error {
+	if err := viper.UnmarshalKey("auth", &cfg.Auth.JWT); err != nil {
+		return err
+	}
+
+	if err := viper.UnmarshalKey("auth.verificationCodeLength", &cfg.Auth.VerificationCodeLength); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func setFromEnv(cfg *Config) {
@@ -86,6 +102,9 @@ func setFromEnv(cfg *Config) {
 	cfg.Postgres.Password = os.Getenv("POSTGRES_PASSWORD")
 	cfg.Postgres.Name = os.Getenv("POSTGRES_Name")
 	cfg.Postgres.SSLMode = os.Getenv("POSTGRES_SSLMODE")
+
+	cfg.Auth.PasswordSalt = os.Getenv("PASSWORD_SALT")
+	cfg.Auth.JWT.SigningKey = os.Getenv("JWT_SIGNING_KEY")
 }
 
 func parseConfigFile(folder, env string) error {

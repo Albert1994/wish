@@ -4,9 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "wish/docs"
 	"wish/internal/config"
 	v1 "wish/internal/handler/v1"
-
 	"wish/internal/service"
 )
 
